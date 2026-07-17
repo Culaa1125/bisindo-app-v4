@@ -94,9 +94,29 @@ def _get_ice_servers():
     return [{"urls": [STUN_URL]}]
 
 
-ice_servers = _get_ice_servers()
+def get_rtc_configuration():
+    """
+    Bangun ulang RTC_CONFIGURATION setiap kali dipanggil.
 
-RTC_CONFIGURATION = {
-    "iceServers": ice_servers,
-    "iceTransportPolicy": "all",
-}
+    PENTING: fungsi ini SENGAJA tidak dipanggil sekali di level
+    modul lalu disimpan ke variabel global. Streamlit menjalankan
+    ulang script pada setiap interaksi/rerun, tapi modul Python
+    hanya di-import SEKALI selama proses server hidup. Kalau
+    ice_servers dihitung sekali saat import, maka satu kredensial
+    TURN Twilio yang sama akan dipakai terus-menerus untuk semua
+    sesi & semua percobaan reconnect (klik Stop lalu Start lagi)
+    selama proses server itu hidup.
+
+    Kredensial sementara dari Twilio Network Traversal Service
+    punya masa berlaku (TTL) sendiri di sisi server Twilio. Begitu
+    TTL itu lewat, request CHANNEL_BIND baru ke TURN server akan
+    ditolak dengan "403 Forbidden IP" walau proses Streamlit-nya
+    sendiri masih berjalan normal. Dengan memanggil fungsi ini
+    setiap kali webrtc_streamer() di-render, kita bergantung pada
+    cache st.cache_data(ttl=TWILIO_TOKEN_TTL) di _fetch_twilio_ice_servers
+    untuk otomatis meminta token baru begitu TTL habis.
+    """
+    return {
+        "iceServers": _get_ice_servers(),
+        "iceTransportPolicy": "all",
+    }
