@@ -11,7 +11,7 @@ from config import (
     MAX_HISTORY,
 )
 
-from rtc_config import RTC_CONFIGURATION
+from rtc_config import get_rtc_configuration
 
 def init_page():
     st.set_page_config(
@@ -114,9 +114,10 @@ def sidebar_ui():
 
         st.subheader("🌐 Koneksi WebRTC")
 
+        current_rtc_configuration = get_rtc_configuration()
         has_turn = any(
             any("turn:" in url or "turns:" in url for url in server.get("urls", []))
-            for server in RTC_CONFIGURATION["iceServers"]
+            for server in current_rtc_configuration["iceServers"]
         )
 
         if has_turn:
@@ -134,8 +135,6 @@ def sidebar_ui():
         "motion_high": motion_high,
     }
 
-#st.write(RTC_CONFIGURATION)
-
 def camera_ui(settings):
     """
     Menampilkan kamera dan mengirimkan
@@ -146,7 +145,7 @@ def camera_ui(settings):
     ctx = webrtc_streamer(
         key="bisindo",
         video_processor_factory=BISINDOProcessor,
-        rtc_configuration=RTC_CONFIGURATION,
+        rtc_configuration=get_rtc_configuration(),
         # True: recv() jalan di thread terpisah dari loop utama WebRTC,
         # supaya frame yang masuk tidak nge-block/menumpuk selagi
         # menunggu inferensi selesai (penting di CPU terbatas).
@@ -397,7 +396,7 @@ def main():
     with right:
         result_ui(ctx)
     with st.expander("RTC Debug"):
-        st.json(RTC_CONFIGURATION)
+        st.json(get_rtc_configuration())
     footer_ui()
 
 if __name__ == "__main__":
