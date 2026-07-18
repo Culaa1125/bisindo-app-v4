@@ -172,6 +172,7 @@ def camera_ui(settings):
 
     return ctx
 
+@st.fragment(run_every=0.5)
 def result_ui(ctx):
     st.subheader("📋 Dashboard Deteksi")
 
