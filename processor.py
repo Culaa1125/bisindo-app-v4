@@ -61,7 +61,7 @@ class BISINDOProcessor(VideoProcessorBase):
         self.motion_trigger = 8
 
         # jumlah frame diam sebelum kembali ke CNN
-        self.still_trigger = 25
+        self.still_trigger = 45
         self.motion_buffer = deque(maxlen=8)
 
         # Prediction Buffer
