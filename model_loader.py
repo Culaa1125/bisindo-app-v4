@@ -63,7 +63,10 @@ class ModelManager:
 
         if not self.lstm_labels:
             with open(LSTM_LABEL_PATH, "r", encoding="utf-8") as f:
-                self.lstm_labels = json.load(f)
+                raw_lstm_labels = json.load(f)
+            self.lstm_labels = {
+                str(v): k for k, v in raw_lstm_labels.items()
+            }
 
         return self
 
