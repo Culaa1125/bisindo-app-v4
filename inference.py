@@ -10,8 +10,6 @@ from collections import deque
 import numpy as np
 
 from config import (
-    CNN_THRESHOLD,
-    LSTM_THRESHOLD,
     SEQUENCE_LENGTH,
     CNN_INPUT_SIZE,
     LANDMARK_VECTOR_SIZE,
@@ -61,9 +59,6 @@ class InferenceEngine:
         idx = np.argmax(prediction)
         confidence = float(prediction[idx])
         label = self.cnn_labels.get(str(int(idx)), "Unknown")
-
-        if confidence < CNN_THRESHOLD:
-            label = "Unknown"
 
         return label, confidence
 
@@ -116,9 +111,6 @@ class InferenceEngine:
         idx = int(np.argmax(prediction))
         confidence = float(prediction[idx])
         label = self.lstm_labels.get(str(idx), "Unknown")
-
-        if confidence < LSTM_THRESHOLD:
-            label = "Unknown"
 
         return label, confidence
     
