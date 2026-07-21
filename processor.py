@@ -42,6 +42,8 @@ class BISINDOProcessor(VideoProcessorBase):
         # tetap terlihat mengalir walau inferensi lebih jarang.
         self._frame_index = 0
         self._last_results = None
+        self.no_hand_counter = 0
+        self.no_hand_tolerance = 6
 
         # Setting dari UI
         self.conf_cnn = 0.80
@@ -332,6 +334,16 @@ class BISINDOProcessor(VideoProcessorBase):
 
         cv2.putText(
             frame,
+            f"Seq LSTM : {len(self.inference.sequence)}/{self.inference.sequence.maxlen}",
+            (20,250),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (0,200,255),
+            2
+        )
+
+        cv2.putText(
+            frame,
             f"FPS : {self.fps:.1f}",
             (20,215),
             cv2.FONT_HERSHEY_SIMPLEX,
@@ -364,9 +376,12 @@ class BISINDOProcessor(VideoProcessorBase):
             self._last_results = results
 
             if has_hand(results):
+                self.no_hand_counter = 0
                 self.auto_detect(results)
             else:
-                self.reset_tracking()
+                self.no_hand_counter += 1
+                if self.no_hand_counter >= self.no_hand_tolerance:
+                    self.reset_tracking()
 
             self.sync_result()
 
